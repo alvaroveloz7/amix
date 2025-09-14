@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Para mi amix 😉</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #fff8f0;
+            --color-accent: #ff6b6b;
+            --color-text: #222;
+            --color-button: #ff6b6b;
+            --color-button-hover: #ff3b3b;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://cloudfront-us-east-1.images.arcpublishing.com/eluniverso/EQ5ACYCNURHQ7LT446DWMHGDSY.jpg');
+            /* Imagen estilo "Un Verano Sin Ti" con corazón */
+            background-size: cover;
+            background-position: center;
+            filter: blur(3px) brightness(0.8);
+            z-index: -1;
+        }
+
+        #envelope-container {
+            width: 90%;
+            max-width: 400px;
+            height: 200px;
+            perspective: 1000px;
+            cursor: pointer;
+            margin-top: 40px;
+        }
+
+        #envelope {
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-bg);
+            border: 2px solid var(--color-accent);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1s ease;
+            transform-style: preserve-3d;
+        }
+
+        #envelope.opened {
+            transform: rotateX(-90deg);
+        }
+
+        .envelope-front h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2em;
+            color: var(--color-accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .message-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: 20px;
+            padding: 0 20px;
+            animation: fadeIn 2s ease forwards;
+        }
+
+        .message-content.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #message-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8em;
+            color: #fff;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+            white-space: pre-wrap;
+            border-right: .15em solid var(--color-accent);
+            overflow: hidden;
+            width: 0;
+            opacity: 0;
+        }
+
+        #message-text.typing-active {
+            animation: typing 4s steps(60, end) forwards, blink-caret .75s step-end infinite;
+            opacity: 1;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: var(--color-accent);
+            }
+        }
+
+        .soundcloud-player {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+            opacity: 0;
+            transition: opacity 2s ease-in;
+        }
+
+        .soundcloud-player.show {
+            opacity: 1;
+        }
+
+        .like-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--color-button);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .like-button:hover {
+            background-color: var(--color-button-hover);
+        }
+
+        @media (max-width: 600px) {
+            #message-text {
+                font-size: 1.4em;
+            }
+
+            .like-button {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+
+    <div id="envelope-container">
+        <div id="envelope">
+            <div class="envelope-front">
+                <h1>Haz clic para abrir</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="message-content" id="message-content">
+        <p id="message-text"></p>
+
+        <div class="soundcloud-player" id="soundcloud-player">
+            <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+                src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/trap-planeta/omar-courtz-de-la-rose-que-vas-hacer-hoy&color=%23ff5500&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false"></iframe>
+        </div>
+
+        <button class="like-button" id="like-button">Me gustó 😏</button>
+    </div>
+
+    <script>
+        const envelope = document.getElementById('envelope');
+        const envelopeContainer = document.getElementById('envelope-container');
+        const messageText = document.getElementById('message-text');
+        const messageContent = document.getElementById('message-content');
+        const soundcloudPlayer = document.getElementById('soundcloud-player');
+        const likeButton = document.getElementById('like-button');
+
+        const message = "Para mi amix que aguanta mis momentos más ovulatorios,\nY que está tan delicious que me dan ganas de comérmela, como las chuletas del TIPI TAPA.";
+
+        function typeWriter() {
+            let i = 0;
+            messageText.textContent = "";
+            messageText.classList.add('typing-active');
+            const speed = 50;
+
+            function type() {
+                if (i < message.length) {
+                    messageText.textContent += message.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    messageText.style.borderRight = 'none';
+                }
+            }
+
+            type();
+        }
+
+        envelopeContainer.addEventListener('click', () => {
+            if (!envelope.classList.contains('opened')) {
+                envelope.classList.add('opened');
+                setTimeout(() => {
+                    messageContent.classList.add('show');
+                    soundcloudPlayer.classList.add('show');
+                    typeWriter();
+                }, 1000);
+            }
+        });
+
+        likeButton.addEventListener('click', () => {
+            window.open("https://www.instagram.com/alvaroveloz7/", "_blank");
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
